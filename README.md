@@ -1,13 +1,30 @@
-# usage
-- run standalone.bat (this will install requirements apply `migrationd and run server)
+KerasUI is a visual tool to allow easy traing of model in image classification and allow to consume model as a service just calling api.
+
+Main features:
+- authenticated with oauth2
+- allow full model customization
+- you can upload yet trained model and consume via api
+- test form and visual to check how the net works
+- bulk upload of training set
+
+
+## usage
+- run standalone.bat (this will install requirements apply migrations and run server)
 - create the admin user using `python manage.py createsuperuser`
 - navigate to http://127.0.0.1:8000/
 
-install
-python -m django --version 'check if django installed
+** how to manage dataset **
+![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.dataset.gif?raw=true)
+** how to test using web UI **
+![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.test-ui.gif?raw=true)
+** how to use api UI or postman to test api **
+![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.api.gif?raw=true)
 
 
-#Api usage
+
+## Api usage
+
+The api to get the prediction works in json post or form post. In json post the image is sent as base64 string.
 
 ```
 POST http://127.0.0.1:8000/api/test/
@@ -33,11 +50,16 @@ The response
 ```
 
 # Tutorial
+This project is part of the image classification context on codeproject. Here a walkthorugt.
 
 ## Project setup
+The poject is based on django, so first things to to is to create a django project using cli.
+
+```
 django-admin startproject kerasui ' create the project
+```
 
-
+This will prduce the following structure:
 `
 kerasui/
     manage.py
@@ -59,10 +81,16 @@ These files are:
 
 
 ## run it
+To check if all works, just run django with the built-in server (in production we will use wsgi interface to integrate with our favourite web server)
+```
 python manage.py runserver
-or setup visual studio code to run django /
+```
+
+You can also use  setup visual studio code to run django /
+
 <image>
 
+This is the django configuration:
 ```py
 {
     // Use IntelliSense to learn about possible attributes.
