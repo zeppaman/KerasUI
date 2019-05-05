@@ -1,0 +1,33 @@
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools %}
+<style>
+.bar {
+    float: right;
+    width: 160px;
+    height: 30px;
+}
+</style>
+  <div class="bar">
+    {{ block.super }}
+  </div>
+  <div class="bar">
+    <ul class="object-tools"> 
+        <li>
+          <a href="/admin/upload?" class="addlink">
+            Upload a zip file
+          </a>
+        </li>
+    </ul>
+</div>
+<div class="bar">
+  <ul class="object-tools"> 
+      <li>
+        <a href="/admin/test?" class="addlink">
+          Test
+        </a>
+      </li>
+  </ul>
+</div>
+      
+{% endblock %}

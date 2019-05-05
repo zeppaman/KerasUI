@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>Test</h1>
+<p>
+  Upload a single image and select the dataset used for model generations
+</p>
+<form enctype="multipart/form-data" method="post" novalidate>
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Test</button>
+  </form>
+  {% endblock %}

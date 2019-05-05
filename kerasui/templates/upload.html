@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>Upload</h1>
+<p>
+  Upload a zip file containing images only, and link to a dataset and label. Each loading is related to only one label. 
+</p>
+<form enctype="multipart/form-data" method="post" novalidate>
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Load dataset items</button>
+  </form>
+  {% endblock %}

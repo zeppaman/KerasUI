@@ -1,0 +1,12 @@
+Django==2.2.1
+coreapi 
+Markdown 
+django-filter 
+django-crispy-forms 
+django-guardian
+djangorestframework
+django-oauth-toolkit
+django-cors-headers
+oauth2_provider
+django-extra-fields
+django-python-code-field
