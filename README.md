@@ -223,7 +223,7 @@ The app is separated in 3 modules:
 - **Background worker:** is a django command that can be executed in background and is used to train models against dataset
 - **API:** this part expose api to interact with application from outside. In example, this allow to add item to dataset from a third party application. *Moreover, the most common usage is to send an image and get the prediction result*
 
-## management
+#### management
 To create an app on django:
 
 ```
@@ -307,7 +307,7 @@ python manage.py makemigrations
 ```
 
 
-# Background worker
+#### Background worker
 To create the background worker we need a module to host it, and I used the management module.
 Inside it we need to create a `management` folder (sorry for name that is the same of the main module, I hope this is not a treath).
 Each file on it can be run via `python manage.py commandname` or via api.
@@ -335,7 +335,7 @@ class DataSetAdmin(admin.ModelAdmin):
         t.start()
 ```
 
-# api
+#### api
 The api is created in a separated app
 
 ```
@@ -396,6 +396,110 @@ urlpatterns = [
 urlpatterns += staticfiles_urlpatterns()
 
 ```
+
+### The training
+
+The algorithm is very easy:
+1. Take all images from dataset 
+2. Normalize them and add to a labeled list
+3. Create the model how it is specified into dataset model
+4. train it
+
+This is the piece of code that query dataset items and load images:
+
+```
+def load_data(self, datasetid):
+        self.stdout.write("loading images")
+        train_data = []
+        
+        images = DataSetItem.objects.filter(dataset=datasetid)
+        labels = [x['label'] for x in  DataSetItem.objects.values('label').distinct()]
+      
+        for image in images:
+            self.stdout.write("Loading {0}".format(image.image))
+            image_path = image.image.path
+            if "DS_Store" not in image_path:           
+                index=[x for x in range(len(labels)) if labels[x]==image.label]
+                label = to_categorical([index,],len(labels))
+                
+                img = Image.open(image_path)
+                img = img.convert('L')
+                img = img.resize((self.IMAGE_SIZE, self.IMAGE_SIZE), Image.ANTIALIAS)
+                print(np.array(img).shape)
+                print(np.array(label[0]).shape)
+                train_data.append([np.array(img), np.array(label[0])])
+            
+        return train_data
+```
+
+Take a look at:
+```
+labels = [x['label'] for x in  DataSetItem.objects.values('label').distinct()]
+label = to_categorical([index,],len(labels))
+```
+
+this assign an order to all the label, i.e. `["CAT","DOGS"]` then `to_categorical` converd the positional index to the one-hot representation. To tell in simpler words, this make CAT =[1,0] and DOG=[0,1]
+
+
+To train the model
+```
+   model=Sequential()
+   exec(dataset.process)
+   model.add(Dense(len(labels), activation = 'softmax'))
+   model.fit(training_images, training_labels, batch_size=dataset.batchSize, epochs=dataset.epochs, verbose=dataset.verbose)
+```
+
+Note that the dataset.process is the python model definition you entered into web admin and you can tune as much you want. The last layer is added ouside the user callback to be sure to match the array size.
+
+The fit method just run the train using all data (keras automatically make an euristic separation of test and training set, for now it's enough, in future we can plan to let the user choose percentages of data to use in each part or mark items one by one).
+
+Finally we store the trained model:
+
+```
+datasetToSave=DataSet.objects.get(pk=datasetid)
+datasetToSave.progress=100
+datasetToSave.model_labels=json.dumps(labels)
+temp_file_name=str(uuid.uuid4())+'.h5'
+model.save(temp_file_name)
+datasetToSave.model.save('weights.h5',File(open(temp_file_name, mode='rb')))
+os.remove(temp_file_name)
+datasetToSave.save()
+```
+Note that I save also the label order beacuse must be the same of the model to match the one-hot convention.
+
+
+### the prediction
+
+There is a common  method tha, given the sample and the dataset, retrieve the model, load it and make the prediction.
+This is the piece of code:
+
+
+```
+def predict(image_path,datasetid):
+        
+            dataset=DataSet.objects.get(pk=datasetid)
+            modelpath=dataset.model.path
+            model=load_model(modelpath)
+            labels=json.loads(dataset.model_labels)
+            
+            img = Image.open(image_path)
+            img = img.convert('L')
+            img = img.resize((256, 256), Image.ANTIALIAS)
+
+            result= model.predict(np.array(img).reshape(-1,256,256, 1))
+            max=result[0]
+            idx=0
+            for i in range(1,len(result)):
+                if max<result[i]:
+                    max=result[i]
+                    idx=i
+
+
+            return labels[idx]
+```
+The  model is loaded using `load_model(modelpath)` and the labels are from the database. The model prediction output as a list of values, it is choosen the higer index and used to retrieve the correct label assignet to the network output at the trainig time.
+
+
 
 
 
