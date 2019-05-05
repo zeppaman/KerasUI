@@ -501,6 +501,7 @@ The  model is loaded using `load_model(modelpath)` and the labels are from the d
 
 
 
-
+# Acknowledgements
+This articol is part of the image classification challange. Thanks to the article [Cat or not](https://www.codeproject.com/Articles/4023566/Cat-or-Not-An-Image-Classifier-using-Python-and-Ke) of Ryan Peden where I find the basics to manage the training process and images to test the tool.
 
 
