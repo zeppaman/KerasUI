@@ -308,18 +308,95 @@ python manage.py makemigrations
 
 
 # Background worker
+To create the background worker we need a module to host it, and I used the management module.
+Inside it we need to create a `management` folder (sorry for name that is the same of the main module, I hope this is not a treath).
+Each file on it can be run via `python manage.py commandname` or via api.
+
+In our case we start the command in a background process via regular django action
+
+This is the relevant part:
 
 ```
-python manage.py startapp worker
 
+class DataSetAdmin(admin.ModelAdmin):
+   
+    actions = [train]
+
+
+    # ....
+    
+    @staticmethod
+    def train(datasetid):
+        call_command('train',datasetid)
+    @staticmethod
+    def train_async(datasetid):
+        t = threading.Thread(target=DataSetAdmin.train, args=(datasetid,))
+        t.setDaemon(True)
+        t.start()
 ```
 
 # api
+The api is created in a separated app
 
 ```
 python manage.py startapp api
 
 ```
+
+Basically all CRUD model can be exposed by api, however you need to specify how to serialize it
+
+```
+
+class DataSetItemSerializer(serializers.HyperlinkedModelSerializer):
+    image = Base64ImageField()
+    dataset=   serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+    class Meta:
+        model = DataSetItem
+
+        # Fields to expose via API
+        fields = ('label', 'image', 'dataset')
+
+
+class DataSetSerializer(serializers.HyperlinkedModelSerializer):  
+   
+    class Meta:
+        model = DataSet
+        fields = ('name', 'process')
+```
+
+You need also to create ViewSet (mapping between the model and the data presentation:
+
+```
+class DataSetItemViewSet(viewsets.ModelViewSet):
+   
+    queryset = DataSetItem.objects.all()
+    serializer_class = DataSetItemSerializer
+
+class DataSetViewSet(viewsets.ModelViewSet):
+   
+    queryset = DataSet.objects.all()
+    serializer_class = DataSetSerializer
+```
+
+Finally, you need to define all routes and map viwset to url. This will be enough to consume model as api
+```
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+router.register(r'datasetitem', views.DataSetItemViewSet)
+router.register(r'dataset', views.DataSetViewSet)
+router.register(r'test', views.TestItemViewSet, basename='test')
+
+# Wire up our API using automatic URL routing.
+# Additionally, we include login URLs for the browsable API.
+urlpatterns = [
+    url(r'^', include(router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+]
+
+urlpatterns += staticfiles_urlpatterns()
+
+```
+
 
 
 
