@@ -24,6 +24,37 @@ Main features:
 
 ## Api usage
 
+To get the token:
+
+```
+Assuming
+client hUiSQJcR9ZrmWSecwh1gloi7pqGTOclss4GwIt1o
+secret ZuuLK21sQ2uZxk8dVG7k6pO474FBlM6DEQs7FQvDh28gdLtbCDJwFFi0YlTlLsbz9ddjUa7Lun6ifYwkfwyGMD95WsCuzibFWIMpsZHMA039RIv1mOsYUO5nK5ZVv1hB
+
+POST to http://127.0.0.1:8000/o/token/
+
+Headers:
+Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+Content-Type: application/x-www-form-urlencoded
+
+Body:
+grant_type:password
+username:admin
+password:admin2019!
+
+```
+Response is
+```
+{
+    "access_token": "h6WeZwYwqahFDqGDRr6mcToyAm3Eae",
+    "expires_in": 36000,
+    "token_type": "Bearer",
+    "scope": "read write",
+    "refresh_token": "eg97atDWMfqC1lYKW81XCvltj0sism"
+}
+```
+
+
 The api to get the prediction works in json post or form post. In json post the image is sent as base64 string.
 
 ```
@@ -48,11 +79,12 @@ The response
     "result": "<LABEL PREDICTED>"
 }
 ```
+for a full api documentation you can refer to the [postman file](https://github.com/zeppaman/KerasUI/blob/master/assets/kerasui.postman_collection.json)
 
-# Tutorial
+## Tutorial
 This project is part of the image classification context on codeproject. Here a walkthorugt.
 
-## Project setup
+### Project setup
 The poject is based on django, so first things to to is to create a django project using cli.
 
 ```
@@ -80,7 +112,7 @@ These files are:
 
 
 
-## run it
+#### run it
 To check if all works, just run django with the built-in server (in production we will use wsgi interface to integrate with our favourite web server)
 ```
 python manage.py runserver
@@ -115,13 +147,69 @@ This is the django configuration:
 ```
 
 
-## settings configuration
+#### settings configuration
 
+Here the basic part of configuration that tell:
+- to use oauth 2 and session authentication so that: regular web user login and use the web site and rest sandbox, api user get the token and query the api services
+- to use sqlite (you can chance to move to any other db)
+- to add all djagno modules (and our two custom: management UI and api)
+- enable cors
 
 ```
+
+INSTALLED_APPS = [
+    'python_field',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'oauth2_provider',
+    'corsheaders',
+    'rest_framework',  
+    'management',
+    'api',
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+   # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+ROOT_URLCONF = 'kerasui.urls'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+  
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
+}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
 ```
 
-## first run
+#### first run
 make and apply migrations
 ```
 python manage.py migrate
@@ -129,49 +217,95 @@ python manage.py createsuperuser
 admin\admin2019!
 ```
 
-## APP
+### APP
+The app is separated in 3 modules:
+- **Management part:** the web UI, the modules and all the core stuff
+- **Background worker:** is a django command that can be executed in background and is used to train models against dataset
+- **API:** this part expose api to interact with application from outside. In example, this allow to add item to dataset from a third party application. *Moreover, the most common usage is to send an image and get the prediction result*
 
 ## management
+To create an app on django:
+
 ```
 python manage.py startapp management
 
 ```
+This will create the main files for you. In this module the most we use is about Model and Model representation:
+- *module.py:* here are all models with field specification. By such class definition all is set to have a working CRUD over entities
+- *admin.py*: this layer describe how to show and edit data with forms.
 
-### Models
-- DataSet
-- DataItem
+**The data model**
+Our data model is vey simple. Assuming that we want to train only one model per dataser (this may be a limit if you would reuse dataset with multiple models...), we have
+- *DataSet*: this contains the model, the model settings, and the name of the dataset.
+- *DataSetItem*: this contains the dataset items, so one image per row with the label attacched.
+
+
+Here just a sample 
+```
+#from admin.py
+class DataSetForm( forms.ModelForm ): 
+
+
+    process =forms.CharField( widget=forms.Textarea(attrs={'rows':40, 'cols':115}), initial=settings.PROCESS_TEMPLATE )
+    model_labels =forms.CharField(initial="[]")
+    class Meta:
+        model = DataSet
+        fields = ['name', 'process','epochs','batchSize','verbose','model_labels','model']
+        widgets = {
+          'process': forms.Textarea(attrs={'rows':20, 'cols':200}),
+          }
+    
+def train(modeladmin, request, queryset):
+       for dataset in queryset:
+        DataSetAdmin.train_async(dataset.id)
+
+class DataSetAdmin(admin.ModelAdmin):
+    list_display = ('name','epochs','batchSize','verbose','progress')
+    inlines = [
+      #  DataSetItemInline,
+    ]
+    form=DataSetForm
+    actions = [train]
+    change_list_template = "dataset_changelist.html"
+
+
+    @staticmethod
+    def train(datasetid):
+        call_command('train',datasetid)
+    @staticmethod
+    def train_async(datasetid):
+        t = threading.Thread(target=DataSetAdmin.train, args=(datasetid,))
+        t.setDaemon(True)
+        t.start()
+
+
+admin.site.register(DataSet,DataSetAdmin)
+
+#from model.py
+
+class DataSet(models.Model):
+    name= models.CharField(max_length=200)
+    process = models.CharField(max_length=5000, default=settings.PROCESS_TEMPLATE)
+    model = models.ImageField(upload_to=path_model_name,max_length=300,db_column='modelPath',blank=True, null=True)
+    #weights = models.ImageField(upload_to=path_model_name,max_length=300,db_column='weightPath',blank=True, null=True)
+    batchSize = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(1)],default=10)
+    epochs = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(1)],default=10)
+    verbose = models.BooleanField(default=True)
+    progress = models.FloatField(default=0)    
+    model_labels= models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
+	
+```
+
+Django works in code-first approach, so we will need to run `python manage.py makemigrations` to generate migration files that will be applied to database.
+
+
 
 ```
 python manage.py makemigrations
 ```
 
-## Oauth
-
-client hUiSQJcR9ZrmWSecwh1gloi7pqGTOclss4GwIt1o
-secret ZuuLK21sQ2uZxk8dVG7k6pO474FBlM6DEQs7FQvDh28gdLtbCDJwFFi0YlTlLsbz9ddjUa7Lun6ifYwkfwyGMD95WsCuzibFWIMpsZHMA039RIv1mOsYUO5nK5ZVv1hB
-
-
-POST to http://127.0.0.1:8000/o/token/
-
-```
-POST /token HTTP/1.1
-Host: http://127.0.0.1:8000/o/token/
-Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
-Content-Type: application/x-www-form-urlencoded
-grant_type:password
-username:admin
-password:admin2019!
-```
-Response is
-```
-{
-    "access_token": "h6WeZwYwqahFDqGDRr6mcToyAm3Eae",
-    "expires_in": 36000,
-    "token_type": "Bearer",
-    "scope": "read write",
-    "refresh_token": "eg97atDWMfqC1lYKW81XCvltj0sism"
-}
-```
 
 # Background worker
 
