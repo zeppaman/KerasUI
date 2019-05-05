@@ -82,11 +82,8 @@ class Command(BaseCommand):
         self.stdout.write("Creating model ")
         self.stdout.write("using process code "+dataset.process)
         
+        #train
         model=Sequential()
-       # script="def createmodel()\n"
-        #script=script+'\n\t'+'\n\t'.join(lines)
-        #script=script+'\nmodel=createmodel()'
-        #self.stdout.write("scritp to run\n "+script)
         exec(dataset.process)
         
         labels = [x['label'] for x in  DataSetItem.objects.values('label').distinct()]
@@ -98,21 +95,11 @@ class Command(BaseCommand):
         model.fit(training_images, training_labels, batch_size=dataset.batchSize, epochs=dataset.epochs, verbose=dataset.verbose)
         
 
-        
+        #save the result
         datasetToSave=DataSet.objects.get(pk=datasetid)
         datasetToSave.progress=100
         datasetToSave.model_labels=json.dumps(labels)
-
-        #save weights
-        f = tempfile.NamedTemporaryFile(delete=False)
-        # serialize model to JSON
-        # model_json = model.to_json()
-        # f.write(model_json)
-        # f.close()
-        # datasetToSave.weights.save('model.json',File(open(f.name, mode='rb')))
-        # f.unlink()
-
-        #save weights
+        
        
         temp_file_name=str(uuid.uuid4())+'.h5'
         model.save(temp_file_name)
