@@ -124,7 +124,7 @@ You can also use  setup visual studio code to run django /
 <image>
 
 This is the django configuration:
-```py
+```json
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -156,7 +156,7 @@ Here the basic part of configuration that tell:
 - to add all djagno modules (and our two custom: management UI and api)
 - enable cors
 
-```
+```py
 
 INSTALLED_APPS = [
     'python_field',
@@ -242,7 +242,7 @@ Our data model is vey simple. Assuming that we want to train only one model per 
 
 
 Here just a sample 
-```
+```py
 #from admin.py
 class DataSetForm( forms.ModelForm ): 
 
@@ -317,7 +317,7 @@ In our case we start the command in a background process via regular django acti
 
 This is the relevant part:
 
-```
+```py
 
 class DataSetAdmin(admin.ModelAdmin):
    
@@ -346,7 +346,7 @@ python manage.py startapp api
 
 Basically all CRUD model can be exposed by api, however you need to specify how to serialize it
 
-```
+```py
 
 class DataSetItemSerializer(serializers.HyperlinkedModelSerializer):
     image = Base64ImageField()
@@ -367,7 +367,7 @@ class DataSetSerializer(serializers.HyperlinkedModelSerializer):
 
 You need also to create ViewSet (mapping between the model and the data presentation:
 
-```
+```py
 class DataSetItemViewSet(viewsets.ModelViewSet):
    
     queryset = DataSetItem.objects.all()
@@ -380,7 +380,7 @@ class DataSetViewSet(viewsets.ModelViewSet):
 ```
 
 Finally, you need to define all routes and map viwset to url. This will be enough to consume model as api
-```
+```py
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'datasetitem', views.DataSetItemViewSet)
@@ -408,7 +408,7 @@ The algorithm is very easy:
 
 This is the piece of code that query dataset items and load images:
 
-```
+```py
 def load_data(self, datasetid):
         self.stdout.write("loading images")
         train_data = []
@@ -434,7 +434,7 @@ def load_data(self, datasetid):
 ```
 
 Take a look at:
-```
+```py
 labels = [x['label'] for x in  DataSetItem.objects.values('label').distinct()]
 label = to_categorical([index,],len(labels))
 ```
@@ -443,7 +443,7 @@ this assign an order to all the label, i.e. `["CAT","DOGS"]` then `to_categorica
 
 
 To train the model
-```
+```py
    model=Sequential()
    exec(dataset.process)
    model.add(Dense(len(labels), activation = 'softmax'))
@@ -456,7 +456,7 @@ The fit method just run the train using all data (keras automatically make an eu
 
 Finally we store the trained model:
 
-```
+```py
 datasetToSave=DataSet.objects.get(pk=datasetid)
 datasetToSave.progress=100
 datasetToSave.model_labels=json.dumps(labels)
@@ -475,7 +475,7 @@ There is a common  method tha, given the sample and the dataset, retrieve the mo
 This is the piece of code:
 
 
-```
+```py
 def predict(image_path,datasetid):
         
             dataset=DataSet.objects.get(pk=datasetid)
