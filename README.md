@@ -10,22 +10,30 @@ Main features:
 
 
 ## usage
-- run standalone.bat (this will install requirements apply migrations and run server)
+- run standalone.bat or sh standalone.bat (this will install requirements apply migrations and run server, same script works on uninx and windows)
 - create the admin user using `python manage.py createsuperuser`
 - navigate to http://127.0.0.1:8000/
 
 ** how to manage dataset **
+Keras UI allow to upload dataset items (image) into the web application. You can do it one by one or adding a zip file with many images in one shot. It manages multiple dataset so you can keep things separates.
+After you have the images loaded, you can click the training button and run the training process.
+This will train the model you have defined without any interaction from you. You will get back training result and if you are finicky you can go to the log file and see what the system output
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.dataset.gif?raw=true)
+
 ** how to test using web UI **
+Tho avoid to loose sleep over, I provided a simple form wehere you can upload your image and get the result.
+
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.test-ui.gif?raw=true)
+
 ** how to use api UI or postman to test api **
+All you have seen until now in the web UI can be replicated using API. 
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.api.gif?raw=true)
 
 
 
 ## Api usage
 
-To get the token:
+This applications use oauth2 to authenticate request, so the first step you need is to get the token. This is a simple example for pasword flow. Please remember you have to enable the app (this is not created by default at first run). 
 
 ```
 Assuming
@@ -56,7 +64,7 @@ Response is
 ```
 
 
-The api to get the prediction works in json post or form post. In json post the image is sent as base64 string.
+The api to get the prediction works in json post or form post. In json post the image is sent as base64 string. This double way to cunsume the service is usefull because you may link it to a form or use with wget or curl tool directly as well you can use it from your application.
 
 ```
 POST http://127.0.0.1:8000/api/test/
@@ -83,16 +91,27 @@ The response
 for a full api documentation you can refer to the [postman file](https://github.com/zeppaman/KerasUI/blob/master/assets/kerasui.postman_collection.json)
 
 ## Tutorial
-This project is part of the image classification context on codeproject. Here a walkthorugt.
+This project is part of the image classification context on codeproject. Here a walkthorugt on the thecnical part to explain how it is build and how it works.
+
+The project stack:
+- Python
+- django framework
+- keras, tensorflow,numpy
+- sqlite (or other database you like)
+
+Tools used:
+- Visual studio code
+- Postman
+- A web browser
 
 ### Project setup
-The poject is based on django, so first things to to is to create a django project using cli.
+The poject is based on django, so first things to to is to create a django project using cli. This require to install django from pip.
 
 ```
 django-admin startproject kerasui ' create the project
 ```
 
-This will prduce the following structure:
+This command will prduce the following structure:
 `
 kerasui/
     manage.py
@@ -104,16 +123,16 @@ kerasui/
 `
 These files are:
 
-- The outer kerasui/ root directory is just a container for your project. The inner mysite/ directory is the actual Python package for your project. Its name is the Python package name you’ll need to use to import anything inside it (e.g. mysite.urls).
-- manage.py: A command-line utility that lets you interact with this Django project in various ways. You can read all the details about manage.py in jango-admin and manage.py.
-- \_\_init\_\_.py: An empty file that tells Python that this directory should be considered a Python package. If you’re a Python beginner, read more about packages in the official Python docs.
-- mysite/settings.py: Settings/configuration for this Django project. Django settings will tell you all about how settings work.
-- mysite/urls.py: The URL declarations for this Django project; a “table of contents” of your Django-powered site. You can read more about URLs in URL dispatcher.
-- mysite/wsgi.py: An entry-point for WSGI-compatible web servers to serve your project. See How to deploy with WSGI for more details.
+- *The outer kerasui/ root directory* is just a container for your project. The inner mysite/ directory is the actual Python package for your project. Its name is the Python package name you’ll need to use to import anything inside it (e.g. mysite.urls).
+- *manage.py:* A command-line utility that lets you interact with this Django project in various ways. You can read all the details about manage.py in jango-admin and manage.py.
+- *\_\_init\_\_.py:* An empty file that tells Python that this directory should be considered a Python package. If you’re a Python beginner, read more about packages in the official Python docs.
+- *kerasui/settings.py:* Settings/configuration for this Django project. Django settings will tell you all about how settings work.
+- *kerasui/urls.py:* The URL declarations for this Django project; a “table of contents” of your Django-powered site. You can read more about URLs in URL dispatcher.
+- *kerasui/wsgi.py:* An entry-point for WSGI-compatible web servers to serve your project. See How to deploy with WSGI for more details.
 
 
 
-#### run it
+#### Run it
 To check if all works, just run django with the built-in server (in production we will use wsgi interface to integrate with our favourite web server)
 ```
 python manage.py runserver
@@ -148,7 +167,7 @@ This is the django configuration:
 ```
 
 
-#### settings configuration
+#### Settings configuration
 
 Here the basic part of configuration that tell:
 - to use oauth 2 and session authentication so that: regular web user login and use the web site and rest sandbox, api user get the token and query the api services
@@ -210,21 +229,24 @@ DATABASES = {
 }
 ```
 
-#### first run
-make and apply migrations
+#### First run
+Django uses a migration system that prodcuces migration files from the model you defined. To apply migrations you just need to run the migrate command (makemigration to create migration files from model).
+
+User database start empty, so you need to create the admin user to login. This is done by the createsuperadmin command 
+
 ```
 python manage.py migrate
 python manage.py createsuperuser
 admin\admin2019!
 ```
 
-### APP
+### How it's built
 The app is separated in 3 modules:
 - **Management part:** the web UI, the modules and all the core stuff
 - **Background worker:** is a django command that can be executed in background and is used to train models against dataset
 - **API:** this part expose api to interact with application from outside. In example, this allow to add item to dataset from a third party application. *Moreover, the most common usage is to send an image and get the prediction result*
 
-#### management
+#### Management
 To create an app on django:
 
 ```
@@ -241,7 +263,8 @@ Our data model is vey simple. Assuming that we want to train only one model per 
 - *DataSetItem*: this contains the dataset items, so one image per row with the label attacched.
 
 
-Here just a sample 
+Here just a sample of models and model representation:
+
 ```py
 #from admin.py
 class DataSetForm( forms.ModelForm ): 
