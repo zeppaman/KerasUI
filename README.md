@@ -14,6 +14,8 @@ Main features:
 - create the admin user using `python manage.py createsuperuser`
 - navigate to http://127.0.0.1:8000/
 
+this requires python 3+, if you have multiple version installed please change the script according (i.e. pip3).
+
 **how to manage dataset**
 
 Keras UI allow to upload dataset items (image) into the web application. You can do it one by one or adding a zip file with many images in one shot. It manages multiple dataset so you can keep things separates.
