@@ -10,3 +10,7 @@ django-cors-headers
 oauth2_provider
 django-extra-fields
 django-python-code-field
+keras 
+tensorflow 
+numpy 
+pillow
