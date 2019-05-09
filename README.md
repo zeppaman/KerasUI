@@ -14,20 +14,20 @@ Main features:
 - create the admin user using `python manage.py createsuperuser`
 - navigate to http://127.0.0.1:8000/
 
-** how to manage dataset **
+**how to manage dataset**
 
 Keras UI allow to upload dataset items (image) into the web application. You can do it one by one or adding a zip file with many images in one shot. It manages multiple dataset so you can keep things separates.
 After you have the images loaded, you can click the training button and run the training process.
 This will train the model you have defined without any interaction from you. You will get back training result and if you are finicky you can go to the log file and see what the system output
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.dataset.gif?raw=true)
 
-** how to test using web UI **
+**how to test using web UI**
 
 Tho avoid to loose sleep over, I provided a simple form wehere you can upload your image and get the result.
 
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.test-ui.gif?raw=true)
 
-** how to use api UI or postman to test api **
+**how to use api UI or postman to test api**
 
 All you have seen until now in the web UI can be replicated using API. 
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.api.gif?raw=true)
