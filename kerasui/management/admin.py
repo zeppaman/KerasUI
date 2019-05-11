@@ -44,7 +44,7 @@ class TestForm(forms.Form):
     IMAGE_SIZE=256
     #image
     image = forms.ImageField()
-    dataset = forms.ChoiceField(choices=[ (o.id, str(o.name)) for o in DataSet.objects.all()])
+    dataset = forms.ModelChoiceField(queryset= DataSet.objects.all())
 
     def process(self,request):
             image = self.cleaned_data['image']
@@ -66,7 +66,7 @@ class UploadForm(forms.Form):
     label= forms.CharField(max_length=200)
     #image
     image = forms.FileField(widget=forms.FileInput(attrs={'accept':'application/zip'}))
-    dataset = forms.ChoiceField(choices=[ (o.id, str(o.name)) for o in DataSet.objects.all()])
+    dataset = forms.ModelChoiceField(queryset= DataSet.objects.all())
 
     def process(self):
             _label = self.cleaned_data['label']
