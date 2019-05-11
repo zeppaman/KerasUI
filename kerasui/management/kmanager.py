@@ -28,17 +28,24 @@ import tempfile
 import uuid
 import json
 from django.contrib import messages
+import logging
 
+logger = logging.getLogger(__name__)
+  
 class KManager:
+  
+
     @staticmethod
     def get_image_size():
         return 256
 
     @staticmethod
     def predict(image_path,datasetid):
-        
+            logger.info("predicting "+image_path+" "+datasetid)
             dataset=DataSet.objects.get(pk=datasetid)
-            modelpath=dataset.model.path
+            modelpath=dataset.model.path        
+            logger.info("model path "+modelpath)
+
             model=load_model(modelpath)
             labels=json.loads(dataset.model_labels)
             
@@ -54,6 +61,6 @@ class KManager:
                     max=result[i]
                     idx=i
 
-            print(result[idx])
-            print(labels[idx])
+            logger.info((result[idx])
+            logger.info((labels[idx])
             return labels[idx]

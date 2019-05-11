@@ -109,3 +109,4 @@ kerasui/*.img
 kerasui/*.h5
 logs/*
 kerasui/models/
+kerasui/data/*

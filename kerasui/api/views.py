@@ -10,8 +10,10 @@ import os
 from management.kmanager import KManager
 import uuid
 import base64
+import logger
 
-# Create your views here.
+logger = logging.getLogger(__name__)
+
 class UserViewSet(viewsets.ModelViewSet):
     
     queryset = User.objects.all().order_by('-date_joined')
@@ -43,8 +45,8 @@ class TestItemViewSet(viewsets.ViewSet):
 
         if 'json' in ct :
             parsed=request.data
-            print(parsed["dataset"])
-            print(parsed["image"])
+            logger.debug(parsed["dataset"])
+            logger.debug(parsed["image"])
 
             datasetid=parsed["dataset"]
             image_path='datasets/'+str(uuid.uuid4())+'.img'
@@ -56,8 +58,8 @@ class TestItemViewSet(viewsets.ViewSet):
             datasetid=request.data["dataset"]
             image_path = request.FILES['image'].temporary_file_path()
 
-        print(image_path)
-        print(datasetid)
+        logger.debug(image_path)
+        logger.debug(datasetid)
 
         response['result']=KManager.predict(image_path, datasetid)     
          

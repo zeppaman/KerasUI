@@ -17,6 +17,10 @@ import tempfile
 import uuid
 import json
 
+import logger
+
+logger = logging.getLogger(__name__)
+
 
 from django.core.files import File
 
@@ -53,8 +57,8 @@ class Command(BaseCommand):
                 img = Image.open(image_path)
                 img = img.convert('L')
                 img = img.resize((self.IMAGE_SIZE, self.IMAGE_SIZE), Image.ANTIALIAS)
-                print(np.array(img).shape)
-                print(np.array(label[0]).shape)
+                logger.debug(np.array(img).shape)
+                logger.debug(np.array(label[0]).shape)
                 train_data.append([np.array(img), np.array(label[0])])
             
         return train_data
@@ -73,11 +77,11 @@ class Command(BaseCommand):
         training_images = np.array([i[0] for i in training_data]).reshape(-1, self.IMAGE_SIZE, self.IMAGE_SIZE, 1)
         training_labels = np.array([i[1] for i in training_data])
 
-        print(training_images.shape)
-        print(training_labels.shape)
+        logger.debug(training_images.shape)
+        logger.debug(training_labels.shape)
 
-        print(training_images[0])
-        print(training_labels[0])
+        logger.debug(training_images[0])
+        logger.debug(training_labels[0])
 
         self.stdout.write("Creating model ")
         self.stdout.write("using process code "+dataset.process)

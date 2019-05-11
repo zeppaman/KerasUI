@@ -18,7 +18,9 @@ from django.contrib import messages
 from management.kmanager import KManager
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
+import logger
 
+logger = logging.getLogger(__name__)
 
 class MyAdminSite(AdminSite):
     # Text to put at the end of each page's <title>.
@@ -47,16 +49,16 @@ class TestForm(forms.Form):
     dataset = forms.ModelChoiceField(queryset= DataSet.objects.all())
 
     def process(self,request):
-            image = self.cleaned_data['image']
-            datasetid = self.cleaned_data['dataset']
-            image_path=image.temporary_file_path()
-            
+        image = self.cleaned_data['image']
+        dataset = self.cleaned_data['dataset']
+        image_path=image.temporary_file_path()
+        
 
-            result=KManager.predict(image_path,datasetid)
+        result=KManager.predict(image_path,dataset.id)
 
-          
+        
 
-            messages.success(request,'Your image is'+result)
+        messages.success(request,'Your image is'+result)
 
             
 
@@ -69,31 +71,32 @@ class UploadForm(forms.Form):
     dataset = forms.ModelChoiceField(queryset= DataSet.objects.all())
 
     def process(self):
-            _label = self.cleaned_data['label']
-            datasetid = self.cleaned_data['dataset']
-            images = self.cleaned_data['image']
-            zippath=images.temporary_file_path()
-            extractpath=zippath.replace("upload.zip","")+"_f"
+        _label = self.cleaned_data['label']
+        dataset = self.cleaned_data['dataset']
+        images = self.cleaned_data['image']
+        zippath=images.temporary_file_path()
+        extractpath=zippath.replace("upload.zip","")+"_f"
 
-            print(zippath)
-            print(extractpath)
+        logger.info("managing upload")
+        logger.info(zippath)
+        logger.info(extractpath)
 
-            #unzip folder
-            os.mkdir(extractpath)
-            zip_ref = zipfile.ZipFile(zippath, 'r')
-            zip_ref.extractall(extractpath)
-            zip_ref.close()
+        #unzip folder
+        os.mkdir(extractpath)
+        zip_ref = zipfile.ZipFile(zippath, 'r')
+        zip_ref.extractall(extractpath)
+        zip_ref.close()
+        
+        onlyfiles = [f for f in listdir(extractpath) if isfile(join(extractpath, f))]
+
+        
+        for imagefile in onlyfiles:
             
-            onlyfiles = [f for f in listdir(extractpath) if isfile(join(extractpath, f))]
+            item=DataSetItem.objects.create( dataset=dataset,label=_label)
+            item.image.save(imagefile,File(open(join(extractpath, imagefile), mode='rb')))
 
-            _dataset=DataSet.objects.get(pk=datasetid)
-            for imagefile in onlyfiles:
-               print(imagefile)
-               item=DataSetItem.objects.create( dataset=_dataset,label=_label)
-               item.image.save(imagefile,File(open(join(extractpath, imagefile), mode='rb')))
-
-            shutil.rmtree(extractpath)
-            
+        shutil.rmtree(extractpath)
+        messages.success(request,'Your dataset is uploaded')
 
 
 class DataSetItemForm( forms.ModelForm ):  

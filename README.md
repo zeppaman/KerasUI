@@ -454,8 +454,6 @@ def load_data(self, datasetid):
                 img = Image.open(image_path)
                 img = img.convert('L')
                 img = img.resize((self.IMAGE_SIZE, self.IMAGE_SIZE), Image.ANTIALIAS)
-                print(np.array(img).shape)
-                print(np.array(label[0]).shape)
                 train_data.append([np.array(img), np.array(label[0])])
             
         return train_data
