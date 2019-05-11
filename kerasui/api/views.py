@@ -10,7 +10,7 @@ import os
 from management.kmanager import KManager
 import uuid
 import base64
-import logger
+import logging
 
 logger = logging.getLogger(__name__)
 

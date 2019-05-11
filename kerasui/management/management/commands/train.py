@@ -17,7 +17,7 @@ import tempfile
 import uuid
 import json
 
-import logger
+import logging
 
 logger = logging.getLogger(__name__)
 

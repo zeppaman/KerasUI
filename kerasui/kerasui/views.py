@@ -10,7 +10,7 @@ def uploadMultiple(request):
        form = UploadForm(request.POST, request.FILES)
    
        if form.is_valid():
-        form.process()
+        form.process(request)
         pass
     else:
         form = UploadForm()

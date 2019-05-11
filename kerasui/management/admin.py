@@ -18,7 +18,7 @@ from django.contrib import messages
 from management.kmanager import KManager
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
-import logger
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class UploadForm(forms.Form):
     image = forms.FileField(widget=forms.FileInput(attrs={'accept':'application/zip'}))
     dataset = forms.ModelChoiceField(queryset= DataSet.objects.all())
 
-    def process(self):
+    def process(self,request):
         _label = self.cleaned_data['label']
         dataset = self.cleaned_data['dataset']
         images = self.cleaned_data['image']
