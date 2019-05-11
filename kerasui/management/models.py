@@ -6,11 +6,11 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 #from django.core.urlresolvers import reverse
 
 def path_file_name(instance, filename):
-        path='datasets/'+str(instance.dataset.id)+'/'+ filename       
+        path='data/datasets/'+str(instance.dataset.id)+'/'+ filename       
         return path
 
 def path_model_name(instance, filename):
-        path='models/'+str(instance.id)+'/'+ filename       
+        path='data/models/'+str(instance.id)+'/'+ filename       
         return path
     
 
