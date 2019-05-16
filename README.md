@@ -1,44 +1,44 @@
-# Keras UI : Viausl tool from image classification
-KerasUI is a visual tool to allow easy traing of model in image classification and allow to consume model as a service just calling api.
+# Keras UI: Visual tool from image classification
+KerasUI is a visual tool to allow easy training of model in image classification and allow to consume model as a service just calling API.
 
 Main features:
 - authenticated with oauth2
 - allow full model customization
-- you can upload yet trained model and consume via api
+- you can upload yet trained model and consume via API
 - test form and visual to check how the net works
-- bulk upload of training set
+- bulk upload of the training set
 
 
 ## usage
-- run standalone.bat or sh standalone.bat (this will install requirements apply migrations and run server, same script works on uninx and windows)
+- run standalone.bat or sh standalone.bat (this will install requirements apply migrations and run the server, the same script works on UNIX and windows)
 - create the admin user using `python manage.py createsuperuser`
 - navigate to http://127.0.0.1:8000/
 
 this requires python 3+, if you have multiple version installed please change the script according (i.e. pip3).
 
-**how to manage dataset**
+**How to manage dataset**
 
-Keras UI allow to upload dataset items (image) into the web application. You can do it one by one or adding a zip file with many images in one shot. It manages multiple dataset so you can keep things separates.
+Keras UI allows uploading dataset items (image) into the web application. You can do it one by one or adding a zip file with many images in one shot. It manages multiple datasets so you can keep things separates.
 After you have the images loaded, you can click the training button and run the training process.
 This will train the model you have defined without any interaction from you. You will get back training result and if you are finicky you can go to the log file and see what the system output
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.dataset.gif?raw=true)
 
-**how to test using web UI**
+**How to test using web UI**
 
-Tho avoid to loose sleep over, I provided a simple form wehere you can upload your image and get the result.
+Tho avoid to lose sleep over, I provided a simple form where you can upload your image and get the result.
 
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.test-ui.gif?raw=true)
 
-**how to use api UI or postman to test api**
+**How to use API UI or postman to test API**
 
 All you have seen until now in the web UI can be replicated using API. 
 ![](https://github.com/zeppaman/KerasUI/blob/master/assets/keras-ui.api.gif?raw=true)
 
 
 
-## Api usage
+## API usage
 
-This applications use oauth2 to authenticate request, so the first step you need is to get the token. This is a simple example for pasword flow. Please remember you have to enable the app (this is not created by default at first run). 
+This application use oauth2 to authenticate requests, so the first step you need is to get the token. This is a simple example for password flow. Please remember you have to enable the app (this is not created by default at first run). 
 
 ```
 Assuming
@@ -69,7 +69,7 @@ Response is
 ```
 
 
-The api to get the prediction works in json post or form post. In json post the image is sent as base64 string. This double way to cunsume the service is usefull because you may link it to a form or use with wget or curl tool directly as well you can use it from your application.
+The API to get the prediction works in json post or form post. In json post the image is sent as base64 string. This double way to consume the service is useful because you may link it to a form or use with wget or curl tool directly as well you can use it from your application.
 
 ```
 POST http://127.0.0.1:8000/api/test/
@@ -80,8 +80,8 @@ Authorization:Bearer <token>
 
 Body
 {
-	"image":"<base 64 image",
-	"dataset":1
+    "image":"<base 64 image",
+    "dataset":1
 }
 
 ```
@@ -96,13 +96,13 @@ The response
 for a full api documentation you can refer to the [postman file](https://github.com/zeppaman/KerasUI/blob/master/assets/kerasui.postman_collection.json)
 
 ## Tutorial
-This project is part of the image classification context on codeproject. Here a walkthorugt on the thecnical part to explain how it is build and how it works.
+This project is part of the image classification context on Codeproject. Here a walkthrough on the technical part to explain how it is built and how it works.
 
 The project stack:
 - Python
 - django framework
 - keras, tensorflow,numpy
-- sqlite (or other database you like)
+- sqlite (or other databases you like)
 
 Tools used:
 - Visual studio code
@@ -110,29 +110,30 @@ Tools used:
 - A web browser
 
 ### Project setup
-The poject is based on django, so first things to to is to create a django project using cli. This require to install django from pip.
+The project is based on Django, so the first thing to do is to create a Django project using CLI. This requires to install Django from pip.
 
 ```
 django-admin startproject kerasui ' create the project
 ```
 
-This command will prduce the following structure:
-`
+This command will produce the following structure:
+```
 kerasui/
     manage.py
-    mysite/
+    kerasui/
         __init__.py
         settings.py
         urls.py
         wsgi.py
-`
+```
+
 These files are:
 
 - *The outer kerasui/ root directory* is just a container for your project. The inner mysite/ directory is the actual Python package for your project. Its name is the Python package name you’ll need to use to import anything inside it (e.g. mysite.urls).
 - *manage.py:* A command-line utility that lets you interact with this Django project in various ways. You can read all the details about manage.py in jango-admin and manage.py.
 - *\_\_init\_\_.py:* An empty file that tells Python that this directory should be considered a Python package. If you’re a Python beginner, read more about packages in the official Python docs.
 - *kerasui/settings.py:* Settings/configuration for this Django project. Django settings will tell you all about how settings work.
-- *kerasui/urls.py:* The URL declarations for this Django project; a “table of contents” of your Django-powered site. You can read more about URLs in URL dispatcher.
+- *kerasui/urls.py:* The URL declarations for this Django project; a “table of contents” of your Django-powered site. You can read more about URLs in the URL dispatcher.
 - *kerasui/wsgi.py:* An entry-point for WSGI-compatible web servers to serve your project. See How to deploy with WSGI for more details.
 
 
@@ -174,10 +175,10 @@ This is the django configuration:
 
 #### Settings configuration
 
-Here the basic part of configuration that tell:
-- to use oauth 2 and session authentication so that: regular web user login and use the web site and rest sandbox, api user get the token and query the api services
-- to use sqlite (you can chance to move to any other db)
-- to add all djagno modules (and our two custom: management UI and api)
+Here the basic part of the configuration that tell:
+- to use oauth 2 and session authentication so that: regular web user login and use the web site and rest sandbox, API user get the token and query the API services
+- to use SQLite (you can change to move to any other DB)
+- to add all Django modules (and our two custom: management UI and API)
 - enable cors
 
 ```py
@@ -235,9 +236,9 @@ DATABASES = {
 ```
 
 #### First run
-Django uses a migration system that prodcuces migration files from the model you defined. To apply migrations you just need to run the migrate command (makemigration to create migration files from model).
+Django uses a migration system that produces migration files from the model you defined. To apply migrations you just need to run the migrate command (makemigration to create migration files from model).
 
-User database start empty, so you need to create the admin user to login. This is done by the createsuperadmin command 
+The user database start empty, so you need to create the admin user to login. This is done by the createsuperadmin command 
 
 ```
 python manage.py migrate
@@ -246,26 +247,26 @@ admin\admin2019!
 ```
 
 ### How it's built
-The app is separated in 3 modules:
+The app is separated into 3 modules:
 - **Management part:** the web UI, the modules and all the core stuff
-- **Background worker:** is a django command that can be executed in background and is used to train models against dataset
-- **API:** this part expose api to interact with application from outside. In example, this allow to add item to dataset from a third party application. *Moreover, the most common usage is to send an image and get the prediction result*
+- **Background worker:** is a Django command that can be executed in background and is used to train models against the dataset
+- **API:** this part exposes API to interact with application from outside. In example, this allows to add items to dataset from a third party application. *Moreover, the most common usage is to send an image and get the prediction result*
 
 #### Management
-To create an app on django:
+To create an app on Django:
 
 ```
 python manage.py startapp management
 
 ```
 This will create the main files for you. In this module the most we use is about Model and Model representation:
-- *module.py:* here are all models with field specification. By such class definition all is set to have a working CRUD over entities
-- *admin.py*: this layer describe how to show and edit data with forms.
+- *module.py:* here are all models with field specifications. By such class definition, all is set to have a working CRUD over entities
+- *admin.py*: this layer describes how to show and edit data with forms.
 
 **The data model**
-Our data model is vey simple. Assuming that we want to train only one model per dataser (this may be a limit if you would reuse dataset with multiple models...), we have
+Our data model is very simple. Assuming that we want to train only one model per dataset (this may be a limit if you would reuse dataset with multiple models...), we have
 - *DataSet*: this contains the model, the model settings, and the name of the dataset.
-- *DataSetItem*: this contains the dataset items, so one image per row with the label attacched.
+- *DataSetItem*: this contains the dataset items, so one image per row with the label attached.
 
 
 Here just a sample of models and model representation:
@@ -324,10 +325,10 @@ class DataSet(models.Model):
     model_labels= models.CharField(max_length=200)
     def __str__(self):
         return self.name
-	
+    
 ```
 
-Django works in code-first approach, so we will need to run `python manage.py makemigrations` to generate migration files that will be applied to database.
+Django works in code-first approach, so we will need to run `python manage.py makemigrations` to generate migration files that will be applied to the database.
 
 
 
@@ -338,10 +339,10 @@ python manage.py makemigrations
 
 #### Background worker
 To create the background worker we need a module to host it, and I used the management module.
-Inside it we need to create a `management` folder (sorry for name that is the same of the main module, I hope this is not a treath).
-Each file on it can be run via `python manage.py commandname` or via api.
+Inside it, we need to create a `management` folder (sorry for the name that is the same as the main module, I hope this is not a threat).
+Each file on it can be run via `python manage.py commandname` or via API.
 
-In our case we start the command in a background process via regular django action
+In our case, we start the command in a background process via regular Django action
 
 This is the relevant part:
 
@@ -364,15 +365,15 @@ class DataSetAdmin(admin.ModelAdmin):
         t.start()
 ```
 
-#### api
-The api is created in a separated app
+#### API
+The API is created in a separated app
 
 ```
-python manage.py startapp api
+python manage.py startapp API
 
 ```
 
-Basically all CRUD model can be exposed by api, however you need to specify how to serialize it
+Basically all CRUD model can be exposed by API, however, you need to specify how to serialize it
 
 ```py
 
@@ -429,9 +430,9 @@ urlpatterns += staticfiles_urlpatterns()
 ### The training
 
 The algorithm is very easy:
-1. Take all images from dataset 
+1. Take all images from the dataset 
 2. Normalize them and add to a labeled list
-3. Create the model how it is specified into dataset model
+3. Create the model how it is specified into the dataset model
 4. train it
 
 This is the piece of code that query dataset items and load images:
@@ -465,7 +466,7 @@ labels = [x['label'] for x in  DataSetItem.objects.values('label').distinct()]
 label = to_categorical([index,],len(labels))
 ```
 
-this assign an order to all the label, i.e. `["CAT","DOGS"]` then `to_categorical` converd the positional index to the one-hot representation. To tell in simpler words, this make CAT =[1,0] and DOG=[0,1]
+this assigns an order to all the labels, i.e. `["CAT","DOGS"]` then `to_categorical` convert the positional index to the one-hot representation. To tell in simpler words, this make CAT =[1,0] and DOG=[0,1]
 
 
 To train the model
@@ -476,9 +477,9 @@ To train the model
    model.fit(training_images, training_labels, batch_size=dataset.batchSize, epochs=dataset.epochs, verbose=dataset.verbose)
 ```
 
-Note that the dataset.process is the python model definition you entered into web admin and you can tune as much you want. The last layer is added ouside the user callback to be sure to match the array size.
+Note that the dataset.process is the python model definition you entered into web admin and you can tune as much you want. The last layer is added outside the user callback to be sure to match the array size.
 
-The fit method just run the train using all data (keras automatically make an euristic separation of test and training set, for now it's enough, in future we can plan to let the user choose percentages of data to use in each part or mark items one by one).
+The fit method just runs the train using all data (keras automatically make a heuristic separation of test and training set, for now, it's enough, in future we can plan to let the user choose percentages of data to use in each part or mark items one by one).
 
 Finally we store the trained model:
 
@@ -497,7 +498,7 @@ Note that I save also the label order beacuse must be the same of the model to m
 
 ### the prediction
 
-There is a common  method tha, given the sample and the dataset, retrieve the model, load it and make the prediction.
+There is a common method that, given the sample and the dataset, retrieve the model, load it and make the prediction.
 This is the piece of code:
 
 
@@ -524,11 +525,11 @@ def predict(image_path,datasetid):
 
             return labels[idx]
 ```
-The  model is loaded using `load_model(modelpath)` and the labels are from the database. The model prediction output as a list of values, it is choosen the higer index and used to retrieve the correct label assignet to the network output at the trainig time.
+The model is loaded using `load_model(modelpath)` and the labels are from the database. The model prediction output as a list of values, it is chosen the higher index and used to retrieve the correct label assigned to the network output at the training time.
 
 
 
 # Acknowledgements
-This articol is part of the image classification challange. Thanks to the article [Cat or not](https://www.codeproject.com/Articles/4023566/Cat-or-Not-An-Image-Classifier-using-Python-and-Ke) of Ryan Peden where I find the basics to manage the training process and images to test the tool.
+This article is part of the image classification challenge. Thanks to the article [Cat or not](https://www.codeproject.com/Articles/4023566/Cat-or-Not-An-Image-Classifier-using-Python-and-Ke) of Ryan Peden where I find the basics to manage the training process and images to test the tool.
 
 
