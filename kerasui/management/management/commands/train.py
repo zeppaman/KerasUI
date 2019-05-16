@@ -2,6 +2,7 @@
 from django.core.management import BaseCommand
 from management.models import DataSet, DataSetItem
 from django.conf import settings
+from management.kerasutil.progress import ProgressLogger
 
 #AI
 from keras.models import Sequential
@@ -96,7 +97,9 @@ class Command(BaseCommand):
 
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.stdout.write("Training model ")
-        model.fit(training_images, training_labels, batch_size=dataset.batchSize, epochs=dataset.epochs, verbose=dataset.verbose)
+
+        out_batch = ProgressLogger(dataset_id=dataset.id)
+        model.fit(training_images, training_labels, batch_size=dataset.batchSize, epochs=dataset.epochs, verbose=dataset.verbose,callbacks=[out_batch])
         
 
         #save the result

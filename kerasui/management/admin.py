@@ -19,6 +19,7 @@ from management.kmanager import KManager
 from django.contrib.admin import AdminSite
 from django.utils.translation import ugettext_lazy
 import logging
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -147,9 +148,17 @@ class DataSetAdmin(admin.ModelAdmin):
         call_command('train',datasetid)
     @staticmethod
     def train_async(datasetid):
-        t = threading.Thread(target=DataSetAdmin.train, args=(datasetid,))
+        tname='training_'+str(datasetid)+"_"+str(uuid.uuid4())
+        t = threading.Thread(target=DataSetAdmin.train, args=(datasetid,), name=tname)
+        
         t.setDaemon(True)
         t.start()
+        # @staticmethod
+        # def stoptrain(datasetid):
+        #     tnamestart='training_'+datasetid+"_"
+        #     for th in threading.enumerate():
+        #              if th.name.startswith(tnamestart)
+                 
 
 
 admin.site.register(DataSet,DataSetAdmin)
