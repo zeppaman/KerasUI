@@ -41,7 +41,7 @@ class KManager:
 
     @staticmethod
     def predict(image_path,datasetid):
-        logger.info("predicting "+image_path+" "+datasetid)
+        logger.info("predicting "+image_path+" "+str(datasetid))
         dataset=DataSet.objects.get(pk=datasetid)
         modelpath=dataset.model.path        
         logger.info("model path "+modelpath)
