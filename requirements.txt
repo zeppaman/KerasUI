@@ -14,3 +14,5 @@ keras
 tensorflow 
 numpy 
 pillow
+keras-layers-normalization
+psycopg2-binary 

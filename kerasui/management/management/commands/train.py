@@ -8,7 +8,7 @@ from management.kerasutil.progress import ProgressLogger
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
-from keras.layers.normalization import BatchNormalization
+from keras.layers import BatchNormalization
 from PIL import Image
 from random import shuffle, choice
 import numpy as np
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 
                 img = Image.open(image_path)
                 img = img.convert('L')
-                img = img.resize((self.IMAGE_SIZE, self.IMAGE_SIZE), Image.ANTIALIAS)
+                img = img.resize((self.IMAGE_SIZE, self.IMAGE_SIZE), Image.LANCZOS)
                 logger.debug(np.array(img).shape)
                 logger.debug(np.array(label[0]).shape)
                 train_data.append([np.array(img), np.array(label[0])])
@@ -98,7 +98,10 @@ class Command(BaseCommand):
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.stdout.write("Training model ")
 
+        
         out_batch = ProgressLogger(dataset_id=dataset.id)
+        out_batch.samples=dataset.batchSize
+        out_batch.samples=dataset.epochs
         model.fit(training_images, training_labels, batch_size=dataset.batchSize, epochs=dataset.epochs, verbose=dataset.verbose,callbacks=[out_batch])
         
 

@@ -11,6 +11,7 @@ from management.kmanager import KManager
 import uuid
 import base64
 import logging
+import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -45,11 +46,10 @@ class TestItemViewSet(viewsets.ViewSet):
 
         if 'json' in ct :
             parsed=request.data
-            logger.debug(parsed["dataset"])
-            logger.debug(parsed["image"])
-
+            #logger.debug(parsed["dataset"])
+            #logger.debug(parsed["image"])
+            image_path=tempfile.NamedTemporaryFile().name
             datasetid=parsed["dataset"]
-            image_path='datasets/'+str(uuid.uuid4())+'.img'
             destination = open(image_path, 'wb+')
             destination.write(base64.b64decode(parsed["image"]))
             destination.close()
@@ -58,8 +58,8 @@ class TestItemViewSet(viewsets.ViewSet):
             datasetid=request.data["dataset"]
             image_path = request.FILES['image'].temporary_file_path()
 
-        logger.debug(image_path)
-        logger.debug(datasetid)
+        #logger.debug(image_path)
+        #logger.debug(datasetid)
 
         response['result']=KManager.predict(image_path, datasetid)     
          

@@ -12,15 +12,16 @@ class ProgressLogger(Callback):
         self.seen = 0
         self.dataset_id = dataset_id
         
-        self.samples=1000
+        self.samples=1900
+        self.epoch=22
         self.oldperc=0
        # print('inited '+self.samples+' '+self.dataset_id)
     def on_train_begin(self, batch, logs={}):
         #  print(batch)
         #  print(logs.items)
-        #  print(self.params['samples'])
-        self.samples=self.params['samples']
-        self.epoch=self.params['epochs']
+        # 
+         
+        print(dir(batch.items))
         self.total=self.samples* self.epoch        
         ds=DataSet.objects.get(pk=self.dataset_id)
         ds.progress=0

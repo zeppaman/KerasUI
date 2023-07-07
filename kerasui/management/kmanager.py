@@ -18,7 +18,7 @@ from django.core.files import File
 from keras.models import Sequential,load_model
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
-from keras.layers.normalization import BatchNormalization
+from keras.layers import BatchNormalization
 from PIL import Image
 from random import shuffle, choice
 import numpy as np
@@ -51,7 +51,7 @@ class KManager:
         
         img = Image.open(image_path)
         img = img.convert('L')
-        img = img.resize((256, 256), Image.ANTIALIAS)
+        img = img.resize((256, 256), Image.LANCZOS)
 
         result= model.predict(np.array(img).reshape(-1,256,256, 1))
         max=result[0]

@@ -1,3 +1,3 @@
 pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
+python kerasui/manage.py migrate
+python kerasui/manage.py runserver
